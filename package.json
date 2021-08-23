@@ -2,7 +2,7 @@
   "name": "storekit-sdk",
   "version": "1.0.0",
   "description": "SDK for Apple StoreKit 2 APIs",
-  "main": "index.js",
+  "main": "storekit.js",
   "scripts": {
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,7 @@
     "storekit"
   ],
   "author": "Simon Lee",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1",
     "jose": "^3.15.4",
