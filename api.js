@@ -1,4 +1,5 @@
 const axios = require('axios');
+const jp = require('jsonpath');
 const jwt = require('./jwt');
 
 const instance = axios.create({
@@ -15,28 +16,28 @@ const getToken = () => {
 
 instance.defaults.headers.common.Authorization = getToken();
 
+function processSubscriptionResponse(response) {
+  jp.apply(response, '$.data.data[*].lastTransactions[*].signedTransactionInfo', (value) => jwt.verifyToken(value));
+  jp.apply(response, '$.data.data[*].lastTransactions[*].signedRenewalInfo', (value) => jwt.verifyToken(value));
+  return response.data;
+}
+
 async function subscriptions(originalTransactionId) {
   const response = await instance.get(`/subscriptions/${originalTransactionId}`);
+  return processSubscriptionResponse(response);
+}
+
+function processHistoryResponse(response) {
+  jp.apply(response, '$.data.signedTransactions[*]', (value) => jwt.verifyToken(value));
   return response.data;
 }
 
 async function history(originalTransactionId) {
   const response = await instance.get(`/history/${originalTransactionId}`);
-  return response.data;
+  return processHistoryResponse(response);
 }
 
 module.exports = {
   subscriptions,
   history,
 };
-
-const test = async () => {
-  try {
-    const data = await subscriptions('1000000459891047');
-    console.log(data);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-test();
