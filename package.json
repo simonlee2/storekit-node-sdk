@@ -2,10 +2,11 @@
   "name": "storekit-sdk",
   "version": "1.0.1",
   "description": "SDK for Apple StoreKit 2 APIs",
-  "main": "storekit.js",
+  "main": "src/storekit.ts",
   "scripts": {
     "lint": "eslint .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "keywords": [
     "storekit"
@@ -18,8 +19,11 @@
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.5",
+    "@types/node": "^16.7.1",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.24.1"
+    "eslint-plugin-import": "^2.24.1",
+    "typescript": "^4.3.5"
   }
 }
