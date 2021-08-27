@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
 const { randomUUID, X509Certificate } = require('crypto');
 
-function generateToken(issuer, bid, kid, privateKeyPath) {
+function generateToken(issuer, bid, kid, privateKey) {
   const audience = 'appstoreconnect-v1';
   const algorithm = 'ES256';
 
@@ -12,7 +11,6 @@ function generateToken(issuer, bid, kid, privateKeyPath) {
     bid,
   };
 
-  const key = fs.readFileSync(privateKeyPath);
   const options = {
     expiresIn: '30m',
     algorithm,
@@ -23,7 +21,7 @@ function generateToken(issuer, bid, kid, privateKeyPath) {
     },
   };
 
-  return jwt.sign(payload, key, options);
+  return jwt.sign(payload, privateKey, options);
 }
 
 function verifyToken(token) {

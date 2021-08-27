@@ -7,14 +7,14 @@ function StoreKit(config) {
   this.issuer = config.issuer;
   this.bid = config.bid;
   this.kid = config.kid;
-  this.privateKeyPath = config.privateKeyPath;
+  this.privateKey = config.privateKey;
 
   this.axios = axios.create({ baseURL: this.baseURL });
   this.updateToken();
 }
 
 StoreKit.prototype.updateToken = function updateToken() {
-  const token = jwt.generateToken(this.issuer, this.bid, this.kid, this.privateKeyPath);
+  const token = jwt.generateToken(this.issuer, this.bid, this.kid, this.privateKey);
   this.axios.defaults.headers.common.Authorization = token;
 };
 
