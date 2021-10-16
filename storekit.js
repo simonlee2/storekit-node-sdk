@@ -18,24 +18,15 @@ StoreKit.prototype.updateToken = function updateToken() {
   this.axios.defaults.headers.common.Authorization = token;
 };
 
-StoreKit.prototype.processSubscriptionResponse = function processSubscriptionResponse(response) {
-  jp.apply(response, '$.data.data[*].lastTransactions[*].signedTransactionInfo', (value) => jwt.verifyToken(value));
-  jp.apply(response, '$.data.data[*].lastTransactions[*].signedRenewalInfo', (value) => jwt.verifyToken(value));
-  return response.data;
-};
-
-StoreKit.prototype.processHistoryResponse = function processHistoryResponse(response) {
-  jp.apply(response, '$.data.signedTransactions[*]', (value) => jwt.verifyToken(value));
-  return response.data;
-};
-
 StoreKit.prototype.subscriptions = async function subscriptions(originalTransactionId) {
   if (originalTransactionId === undefined) {
     return undefined;
   }
 
   const response = await this.axios.get(`/subscriptions/${originalTransactionId}`);
-  return this.processSubscriptionResponse(response);
+  jp.apply(response, '$.data.data[*].lastTransactions[*].signedTransactionInfo', (value) => jwt.verifyToken(value));
+  jp.apply(response, '$.data.data[*].lastTransactions[*].signedRenewalInfo', (value) => jwt.verifyToken(value));
+  return response.data;
 };
 
 StoreKit.prototype.history = async function history(originalTransactionId) {
@@ -44,7 +35,18 @@ StoreKit.prototype.history = async function history(originalTransactionId) {
   }
 
   const response = await this.axios.get(`/history/${originalTransactionId}`);
-  return this.processHistoryResponse(response);
+  jp.apply(response, '$.data.signedTransactions[*]', (value) => jwt.verifyToken(value));
+  return response.data;
+};
+
+StoreKit.prototype.invoice = async function invoice(orderId) {
+  if (orderId === undefined) {
+    return undefined;
+  }
+
+  const response = await this.axios.get(`/lookup/${orderId}`);
+  jp.apply(response, '$.data.signedTransactions[*]', (value) => jwt.verifyToken(value));
+  return response.data;
 };
 
 module.exports = StoreKit;
