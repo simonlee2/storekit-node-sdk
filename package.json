@@ -1,6 +1,6 @@
 {
   "name": "storekit-sdk",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "SDK for Apple StoreKit 2 APIs",
   "main": "storekit.js",
   "scripts": {
