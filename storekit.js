@@ -30,11 +30,30 @@ StoreKit.prototype.subscriptions = async function subscriptions(originalTransact
 };
 
 StoreKit.prototype.history = async function history(originalTransactionId) {
+  let history = await this.paginatedHistory(originalTransactionId);
+    let hasMore = history.hasMore;
+    let revision = history.revision;
+    console.log(`Fetched initial ${history.signedTransactions.length} transactions. Revision: ${revision}`);
+
+    while (hasMore) {
+        const response = await this.paginatedHistory(originalTransactionId, revision);
+        console.log(`Fetched ${response.signedTransactions.length} more transactions. Revision: ${response.revision}`);
+        hasMore = response.hasMore;
+        revision = response.revision;
+        history.signedTransactions = history.signedTransactions.concat(response.signedTransactions);
+    }
+
+    return history;
+}
+
+StoreKit.prototype.paginatedHistory = async function paginatedHistory(originalTransactionId, revision) {
   if (originalTransactionId === undefined) {
     return undefined;
   }
 
-  const response = await this.axios.get(`/history/${originalTransactionId}`);
+  // set url based on wheter revision is provided
+  const url = revision === undefined ? `/history/${originalTransactionId}` : `/history/${originalTransactionId}?revision=${revision}`;
+  const response = await this.axios.get(url);
   jp.apply(response, '$.data.signedTransactions[*]', (value) => jwt.verifyToken(value));
   return response.data;
 };
