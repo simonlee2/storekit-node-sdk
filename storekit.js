@@ -29,14 +29,14 @@ StoreKit.prototype.subscriptions = async function subscriptions(originalTransact
   return response.data;
 };
 
-StoreKit.prototype.history = async function history(originalTransactionId) {
-  let history = await this.paginatedHistory(originalTransactionId);
+StoreKit.prototype.history = async function history(originalTransactionId, sort) {
+  let history = await this.paginatedHistory(originalTransactionId, sort);
     let hasMore = history.hasMore;
     let revision = history.revision;
     console.log(`Fetched initial ${history.signedTransactions.length} transactions. Revision: ${revision}`);
 
     while (hasMore) {
-        const response = await this.paginatedHistory(originalTransactionId, revision);
+        const response = await this.paginatedHistory(originalTransactionId, sort, revision);
         console.log(`Fetched ${response.signedTransactions.length} more transactions. Revision: ${response.revision}`);
         hasMore = response.hasMore;
         revision = response.revision;
@@ -46,13 +46,24 @@ StoreKit.prototype.history = async function history(originalTransactionId) {
     return history;
 }
 
-StoreKit.prototype.paginatedHistory = async function paginatedHistory(originalTransactionId, revision) {
+StoreKit.prototype.paginatedHistory = async function paginatedHistory(originalTransactionId, sort, revision) {
   if (originalTransactionId === undefined) {
     return undefined;
   }
 
-  // set url based on wheter revision is provided
-  const url = revision === undefined ? `/history/${originalTransactionId}` : `/history/${originalTransactionId}?revision=${revision}`;
+  const queryParams = {
+    revision,
+    sort
+  };
+
+  const params = Object.entries(queryParams)
+    .filter(([_, value]) => value !== undefined)
+    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`) // Encode values
+    .join('&')
+
+  const basePath = `/history/${originalTransactionId}`;
+  const url = params ? `${basePath}?${params}` : basePath;
+
   const response = await this.axios.get(url);
   jp.apply(response, '$.data.signedTransactions[*]', (value) => jwt.verifyToken(value));
   return response.data;
